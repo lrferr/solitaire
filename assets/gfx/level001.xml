@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ImageControl>
+  <Library>
+    <Image>
+      <Name>blueemptyplace</Name>
+      <Path>E:\eclipse_juno\workspaceAndEngine\Solitaire\assets\gfx\blueemptyplace.png</Path>
+    </Image>
+  </Library>
+  <Level>
+    <Properties />
+  </Level>
+</ImageControl>

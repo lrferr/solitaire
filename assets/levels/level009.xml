@@ -1,0 +1,15 @@
+<level width="480" height="320">
+    <entity id="0" x="224" y="224" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="2" x="224" y="96" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="3" x="224" y="160" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="4" x="288" y="160" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="5" x="352" y="160" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="7" x="160" y="160" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="8" x="96" y="160" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="1" x="224" y="32" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="6" x="224" y="288" width="32" height="32" type="ball" initEmpty="False" width_entity="32" height_entity="32" />
+    <entity id="11" x="160" y="96" width="32" height="32" type="ball" initEmpty="True" width_entity="32" height_entity="32" />
+    <entity id="12" x="288" y="96" width="32" height="32" type="ball" initEmpty="True" width_entity="32" height_entity="32" />
+    <entity id="13" x="288" y="224" width="32" height="32" type="ball" initEmpty="True" width_entity="32" height_entity="32" />
+    <entity id="14" x="160" y="224" width="32" height="32" type="ball" initEmpty="True" width_entity="32" height_entity="32" />
+</level>
