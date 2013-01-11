@@ -61,7 +61,6 @@ import org.andengine.util.level.LevelLoader;
 import org.andengine.util.level.constants.LevelConstants;
 import org.xml.sax.Attributes;
 
-import android.graphics.Typeface;
 import android.opengl.GLES20;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -77,6 +76,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListener, IOnMenuItemClickListener,  IAccelerationListener, IOnAreaTouchListener, IScrollDetectorListener, IClickDetectorListener {
 
 	private Camera camera;
+	
 	private BitmapTextureAtlas ballTextureAtlas;
 	private BitmapTextureAtlas emptyPlaceTextureAtlas;
 	private BitmapTextureAtlas intervalTextureAtlas;	
@@ -97,6 +97,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	private ArrayList<Body> bodyPlaceList = new ArrayList<Body>();
 	
 	private Scene mainScene;
+	
 	private int timePassed = 0;
 	
 	public static int remains = 0;
@@ -126,15 +127,14 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	private  final int LAYER_PLACE = LAYER_BACKGROUND + 1;
 	private	 final int LAYER_BALL = LAYER_PLACE + 1;
 	private  final int LAYER_SCORE = LAYER_BALL + 1;
+	
 	protected static final int MENU_RESET = 0;
 	protected static final int MENU_QUIT = MENU_RESET + 1;
-
 	protected static final int MENU_OK = MENU_QUIT + 1;
 	protected static final int MENU_NEXT_LEVEL = MENU_OK + 1;
 	protected static final int MENU_SKIP = MENU_NEXT_LEVEL + 1;
 
 	protected static final int LEVEL_COUNT = 10;
-	
 	protected static int LEVELS = LEVEL_COUNT;
 	protected static int LEVEL_COLUMNS_PER_SCREEN = 4;
 	protected static int LEVEL_ROWS_PER_SCREEN = 3;
@@ -149,28 +149,31 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	private Text scoreText;
 	private static Text remainsText;
 	private static Text levelText;
+	
+	private Font font;
 	private Font fontScore;
 	private Font fontRemain;
 	private Font fontLevel;
+	
 	protected MenuScene menuScene;
+	
 	private PhysicsWorld physicsWorld;
 	private ArrayList<PhysicsConnector> physConnectList = new ArrayList<PhysicsConnector>();
 
 	public Face face;
 	public Place place;
-	private Font mFont;
-	private Scene mLevelSelectScene;
-	private SurfaceScrollDetector mScrollDetector;
-	private ClickDetector mClickDetector;
-	private BitmapTextureAtlas mLevelSelectorTextureAtlas;
-	private TextureRegion mLevelSelectRegion;
+	private Scene levelSelectScene;
+	private SurfaceScrollDetector scrollDetector;
+	private ClickDetector clickDetector;
+	private BitmapTextureAtlas levelSelectorTextureAtlas;
+	private TextureRegion levelSelectRegion;
 	
-	protected float mMinY = 0;
-	protected float mMaxY = 0;
+	protected float minY = 0;
+	protected float maxY = 0;
 	protected int iLevelClicked = -1;
-	protected int mMaxLevelReached = 21;
+	protected int maxLevelReached = 21;
 	private boolean isLevelSelecting = false;
-	private int mCurrentLevel;
+	private int currentLevel;
 	private TimerHandler timeHandler;
 	
 	public static final short CATEGORYBIT_PLACE = 1;
@@ -185,7 +188,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		Toast.makeText(this, "Touch & Drag the blue balls.\nThen drag and drop on the white hole!", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, "Touch & Drag the faces.\nThen drag and drop on the white hole!", Toast.LENGTH_LONG).show();
 		this.camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		return 
 				new EngineOptions(true, 
@@ -232,7 +235,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	public Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		
-		mCurrentLevel = 1;
+		currentLevel = 1;
 		
 		this.mainScene = new Scene();
 		for(int i = 0; i < LAYER_COUNT; i++) {
@@ -593,18 +596,18 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 			return true;
 
 		case MENU_NEXT_LEVEL:
-			if (mCurrentLevel == LEVEL_COUNT) {
-				mCurrentLevel = 1;
+			if (currentLevel == LEVEL_COUNT) {
+				currentLevel = 1;
 			} else {
-				mCurrentLevel++;
+				currentLevel++;
 			}
-			loadLevel(mCurrentLevel);
+			loadLevel(currentLevel);
 			//this.mEngine.setScene(mainScene);
 			this.menuScene.back();
 			return true;
 
 		case MENU_SKIP:
-			mEngine.setScene(mLevelSelectScene);
+			mEngine.setScene(levelSelectScene);
 			isLevelSelecting = true;
 			this.menuScene.back();
 			return true;
@@ -623,14 +626,14 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		// TODO Auto-generated method stub
-		if (pScene == this.mLevelSelectScene) {
+		if (pScene == this.levelSelectScene) {
 			Log.d("SOLITAIRE", "Cena Level pressionada");
 			//this.mEngine.setScene(this.scene);
 		}
 		
 		if (isLevelSelecting) {
-			this.mClickDetector.onTouchEvent(pSceneTouchEvent);
-			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
+			this.clickDetector.onTouchEvent(pSceneTouchEvent);
+			this.scrollDetector.onTouchEvent(pSceneTouchEvent);
 		}
 
 		return true;
@@ -799,13 +802,13 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		rect.setColor(0, 0, 0);
 		rect.setAlpha(0.8f);
 
-		final Text textCenter = new Text(180.0f, 20.0f, this.mFont, "Oops! Try again?", this.getVertexBufferObjectManager());
+		final Text textCenter = new Text(180.0f, 20.0f, this.font, "Oops! Try again?", this.getVertexBufferObjectManager());
 
-		final IMenuItem quitMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_QUIT, this.mFont, "QUIT", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(0,0,0));
+		final IMenuItem quitMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_QUIT, this.font, "QUIT", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(0,0,0));
 		quitMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 		menuScene.addMenuItem(quitMenuItem);
 
-		final IMenuItem nextLevelMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_SKIP, this.mFont, "Level Select", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(0,0,0));
+		final IMenuItem nextLevelMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_SKIP, this.font, "Level Select", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(0,0,0));
 		nextLevelMenuItem.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		menuScene.addMenuItem(nextLevelMenuItem);
 
@@ -830,9 +833,9 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		rect.setColor(0, 0, 0);
 		rect.setAlpha(0.5f);
 
-		final Text textCenter = new Text(200.0f, 20.0f, this.mFont, "Congratulations\n You made it!", this.getVertexBufferObjectManager());
+		final Text textCenter = new Text(200.0f, 20.0f, this.font, "Congratulations\n You made it!", this.getVertexBufferObjectManager());
 
-		final IMenuItem quitMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_NEXT_LEVEL, mFont, "Next Level", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
+		final IMenuItem quitMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_NEXT_LEVEL, font, "Next Level", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
 		menuScene.addMenuItem(quitMenuItem);
 
 		menuScene.buildAnimations();
@@ -879,21 +882,21 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		rect.setColor(0, 0, 0);
 		rect.setAlpha(0.5f);
 
-		//final Text textCenter = new Text(140, 15, this.mFont, "SOLITAIRE", this.getVertexBufferObjectManager());
+		//final Text textCenter = new Text(140, 15, this.font, "SOLITAIRE", this.getVertexBufferObjectManager());
 
-		final IMenuItem okMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_OK, this.mFont, "Continue", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
+		final IMenuItem okMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_OK, this.font, "Continue", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
 		okMenuItem.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		menuScene.addMenuItem(okMenuItem);
 
-		final IMenuItem selectLevelMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_SKIP, this.mFont, "Level Select", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
+		final IMenuItem selectLevelMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_SKIP, this.font, "Level Select", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
 		selectLevelMenuItem.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		menuScene.addMenuItem(selectLevelMenuItem);
 		
-		final IMenuItem nextLevelMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_NEXT_LEVEL, this.mFont, "Next Level", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
+		final IMenuItem nextLevelMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_NEXT_LEVEL, this.font, "Next Level", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
 		nextLevelMenuItem.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		menuScene.addMenuItem(nextLevelMenuItem);
 
-		final IMenuItem quitLevelMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_QUIT, this.mFont, "Quit", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
+		final IMenuItem quitLevelMenuItem = new ColorMenuItemDecorator(new TextMenuItem(MENU_QUIT, this.font, "Quit", this.getVertexBufferObjectManager()), new Color(1,0,0), new Color(1,1,1));
 		quitLevelMenuItem.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		menuScene.addMenuItem(quitLevelMenuItem);
 		
@@ -920,7 +923,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		
 		loadFontTexture();
 		/*
-		this.mLevelSelectScene = new Scene(){
+		this.levelSelectScene = new Scene(){
 			@SuppressWarnings("unused")
 			public boolean onKeyDown(final int pKeyCode, final KeyEvent pEvent) {
 				if(pKeyCode == KeyEvent.KEYCODE_BACK && pEvent.getAction() == KeyEvent.ACTION_DOWN) {
@@ -930,16 +933,16 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 			}
 				
 		};*/
-		this.mLevelSelectScene = new Scene();
+		this.levelSelectScene = new Scene();
 		
-		this.mLevelSelectScene.setBackground(new Background(0.2f, 0.2f, 0.5f));
+		this.levelSelectScene.setBackground(new Background(0.2f, 0.2f, 0.5f));
 
-		this.mScrollDetector = new SurfaceScrollDetector(this);
-		this.mClickDetector = new ClickDetector(this);
+		this.scrollDetector = new SurfaceScrollDetector(this);
+		this.clickDetector = new ClickDetector(this);
 
-		this.mLevelSelectScene.setOnSceneTouchListener(this);
-		this.mLevelSelectScene.setTouchAreaBindingOnActionDownEnabled(true);
-		this.mLevelSelectScene.setOnSceneTouchListenerBindingOnActionDownEnabled(true);
+		this.levelSelectScene.setOnSceneTouchListener(this);
+		this.levelSelectScene.setTouchAreaBindingOnActionDownEnabled(true);
+		this.levelSelectScene.setOnSceneTouchListenerBindingOnActionDownEnabled(true);
 
 		// calculate the amount of required columns for the level count
 		int totalRows = (LEVELS / LEVEL_COLUMNS_PER_SCREEN) + 1;
@@ -952,8 +955,8 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		for (int x = 0; x < CAMERA_WIDTH; x += 128) {
 			for (int y = 0; y < (totalRows*150); y += 128) {
 				//Sprite mBackground = new Sprite(x, y, 128, 128, this.);
-				//this.mLevelSelectScene.attachChild(this.grassBackground);
-				this.mLevelSelectScene.setBackground(this.grassBackground);
+				//this.levelSelectScene.attachChild(this.grassBackground);
+				this.levelSelectScene.setBackground(this.grassBackground);
 			}
 		}
 		
@@ -971,12 +974,12 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 
 				// Create the rectangle. If the level selected
 				// has not been unlocked yet, don't allow loading.
-				Sprite box = new Sprite(boxX, boxY, mLevelSelectRegion, this.getVertexBufferObjectManager()) {
+				Sprite box = new Sprite(boxX, boxY, levelSelectRegion, this.getVertexBufferObjectManager()) {
 
 					@Override
 					public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 						//SolitaireActivity.this.mEngine.setScene(SolitaireActivity.this.scene);
-						if (levelToLoad >= mMaxLevelReached)
+						if (levelToLoad >= maxLevelReached)
 							iLevelClicked = -1;
 						else {
 							iLevelClicked = levelToLoad;
@@ -988,16 +991,16 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 				
 				box.setScale(1.5f);
  
-				this.mLevelSelectScene.attachChild(box);
+				this.levelSelectScene.attachChild(box);
 
 				// Center for different font size
 				if (iLevel < 10) {
-					this.mLevelSelectScene.attachChild(new Text(boxX + 17.0f, boxY + 3.0f, this.mFont, String.valueOf(iLevel), this.getVertexBufferObjectManager()));
+					this.levelSelectScene.attachChild(new Text(boxX + 17.0f, boxY + 3.0f, this.font, String.valueOf(iLevel), this.getVertexBufferObjectManager()));
 				} else {
-					this.mLevelSelectScene.attachChild(new Text(boxX + 4.0f, boxY + 3.0f, this.mFont, String.valueOf(iLevel), this.getVertexBufferObjectManager()));
+					this.levelSelectScene.attachChild(new Text(boxX + 4.0f, boxY + 3.0f, this.font, String.valueOf(iLevel), this.getVertexBufferObjectManager()));
 				}
 
-				this.mLevelSelectScene.registerTouchArea(box);
+				this.levelSelectScene.registerTouchArea(box);
 
 				iLevel++;
 				boxX += spaceBetweenColumns + LEVEL_PADDING;
@@ -1014,31 +1017,31 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		}
 
 		// Set the max scroll possible, so it does not go over the boundaries.
-		mMaxY = boxY - CAMERA_HEIGHT + 200;
+		maxY = boxY - CAMERA_HEIGHT + 200;
 
 
 		
-		return this.mLevelSelectScene;
+		return this.levelSelectScene;
 	}
 
 	private void loadFontTexture() {
 		// TODO Auto-generated method stub
 		// Level Selector
-		this.mLevelSelectorTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 64, 64);
-		this.mLevelSelectRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mLevelSelectorTextureAtlas, this, "levelcircle.png", 0, 0);
-		this.mLevelSelectorTextureAtlas.load();
+		this.levelSelectorTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 64, 64);
+		this.levelSelectRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.levelSelectorTextureAtlas, this, "levelcircle.png", 0, 0);
+		this.levelSelectorTextureAtlas.load();
 		
 		//load font texture
 		FontFactory.setAssetBasePath("font/");
-		this.mFont = FontFactory.createFromAsset(this.getFontManager(), this.getTextureManager(), 256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA, this.getAssets(), "tahoma.ttf", 48, true, android.graphics.Color.WHITE);
-		this.mFont.load();
+		this.font = FontFactory.createFromAsset(this.getFontManager(), this.getTextureManager(), 256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA, this.getAssets(), "tahoma.ttf", 48, true, android.graphics.Color.WHITE);
+		this.font.load();
 
 	}
 
 	@Override
 	public boolean onKeyDown(final int pKeyCode, final KeyEvent pEvent) {
 		if(pKeyCode == KeyEvent.KEYCODE_BACK && pEvent.getAction() == KeyEvent.ACTION_DOWN) {
-			if (this.mEngine.getScene() == this.mLevelSelectScene)
+			if (this.mEngine.getScene() == this.levelSelectScene)
 				this.finish();
 		}
 
@@ -1075,7 +1078,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	public void onScroll(ScrollDetector pScollDetector, int pPointerID,
 			float pDistanceX, float pDistanceY) {
 		// TODO Auto-generated method stub
-		if ( ((mCurrentY - pDistanceY) < mMinY) || ((mCurrentY - pDistanceY) > mMaxY) )
+		if ( ((mCurrentY - pDistanceY) < minY) || ((mCurrentY - pDistanceY) > maxY) )
 			return;
 
 		this.camera.offsetCenter(0, -pDistanceY);
