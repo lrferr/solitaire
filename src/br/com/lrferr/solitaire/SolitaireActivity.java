@@ -111,7 +111,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	private static final String TAG_ENTITY_ATTRIBUTE_WIDTH = "width_entity";
 	private static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height_entity";
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
-	private static final String TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_FACE = "face";
+	private static final String TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_FACE = "ball";
 	private static final String TAG_ENTITY_ATTRIBUTE_INITEMPTY = "initEmpty";
 
 	
