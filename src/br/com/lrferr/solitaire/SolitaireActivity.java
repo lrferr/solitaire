@@ -77,14 +77,14 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 
 	private Camera camera;
 	
-	private BitmapTextureAtlas ballTextureAtlas;
-	private BitmapTextureAtlas emptyPlaceTextureAtlas;
+	private BitmapTextureAtlas faceTextureAtlas;
+	private BitmapTextureAtlas placeTextureAtlas;
 	private BitmapTextureAtlas intervalTextureAtlas;	
 	private BitmapTextureAtlas starTextureAtlas;
 	private BitmapTextureAtlas menuTexture;
 	
-	private TiledTextureRegion ballTextureRegion;
-	private TextureRegion emptyPlaceTextureRegion;
+	private TiledTextureRegion faceTextureRegion;
+	private TextureRegion placeTextureRegion;
 
 	private TextureRegion starTextureRegion;
 	
@@ -111,7 +111,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	private static final String TAG_ENTITY_ATTRIBUTE_WIDTH = "width_entity";
 	private static final String TAG_ENTITY_ATTRIBUTE_HEIGHT = "height_entity";
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
-	private static final String TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BALL = "ball";
+	private static final String TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_FACE = "face";
 	private static final String TAG_ENTITY_ATTRIBUTE_INITEMPTY = "initEmpty";
 
 	
@@ -125,8 +125,8 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	private static final int LAYER_COUNT = 4;
 	private  final int LAYER_BACKGROUND = 0;
 	private  final int LAYER_PLACE = LAYER_BACKGROUND + 1;
-	private	 final int LAYER_BALL = LAYER_PLACE + 1;
-	private  final int LAYER_SCORE = LAYER_BALL + 1;
+	private	 final int LAYER_FACE = LAYER_PLACE + 1;
+	private  final int LAYER_SCORE = LAYER_FACE + 1;
 	
 	protected static final int MENU_RESET = 0;
 	protected static final int MENU_QUIT = MENU_RESET + 1;
@@ -177,11 +177,11 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	private TimerHandler timeHandler;
 	
 	public static final short CATEGORYBIT_PLACE = 1;
-	public static final short CATEGORYBIT_BALL = 2;
+	public static final short CATEGORYBIT_FACE = 2;
 	public static final short MASKBITS_PLACE = CATEGORYBIT_PLACE;
-	public static final short MASKBITS_BALL = MASKBITS_PLACE;
+	public static final short MASKBITS_FACE = MASKBITS_PLACE;
 	public static final FixtureDef PLACE_FIXTURE_DEF = PhysicsFactory.createFixtureDef(0.0f, 0.5f, 0.5f, false, CATEGORYBIT_PLACE, MASKBITS_PLACE, (short)0);
-	public static final FixtureDef BALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1.0f, 0.5f, 0.5f, false, CATEGORYBIT_BALL, MASKBITS_BALL, (short)0);
+	public static final FixtureDef FACE_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1.0f, 0.5f, 0.5f, false, CATEGORYBIT_FACE, MASKBITS_FACE, (short)0);
 	
 	
 
@@ -202,17 +202,17 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 	public void onCreateResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
-		this.ballTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 128, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.emptyPlaceTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 32, TextureOptions.BILINEAR);
+		this.faceTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 128, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.placeTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 32, TextureOptions.BILINEAR);
 		this.intervalTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 32, TextureOptions.BILINEAR);
 		this.starTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 32, TextureOptions.BILINEAR);
-		this.ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.ballTextureAtlas, this, "blueballtiled.png", 0, 0, 4, 1);
-		this.ballTextureAtlas.load();
+		this.faceTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.faceTextureAtlas, this, "bluefacetiled.png", 0, 0, 4, 1);
+		this.faceTextureAtlas.load();
 
-		this.emptyPlaceTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.emptyPlaceTextureAtlas, this, "" +
+		this.placeTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.placeTextureAtlas, this, "" +
 				"emptyplace.png", 0, 0);
 		this.starTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.starTextureAtlas, this, "star.png", 0, 0);
-		this.emptyPlaceTextureAtlas.load();
+		this.placeTextureAtlas.load();
 		this.intervalTextureAtlas.load();
 		this.starTextureAtlas.load();
 		this.grassBackground = new RepeatingSpriteBackground(CAMERA_WIDTH, CAMERA_HEIGHT, this.getTextureManager(), AssetBitmapTextureAtlasSource.create(this.getAssets(), "gfx/skytable.png"), this.getVertexBufferObjectManager()); 
@@ -349,10 +349,10 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		
 		int posicao = (int)(Math.random() * COLOR_RANDOM_PLACE.length);
 
-		this.ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.ballTextureAtlas, this, COLOR_RANDOM_PLACE[posicao] + "balltiled.png", 0, 0, 4, 1);
-		this.ballTextureAtlas.load();
-		this.emptyPlaceTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.emptyPlaceTextureAtlas, this, COLOR_RANDOM_PLACE[posicao] + "emptyplace.png", 0, 0);
-		this.emptyPlaceTextureAtlas.load();
+		this.faceTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.faceTextureAtlas, this, COLOR_RANDOM_PLACE[posicao] + "facetiled.png", 0, 0, 4, 1);
+		this.faceTextureAtlas.load();
+		this.placeTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.placeTextureAtlas, this, COLOR_RANDOM_PLACE[posicao] + "emptyplace.png", 0, 0);
+		this.placeTextureAtlas.load();
 		posicao = (int)(Math.random() * COLOR_RANDOM_TABLE.length);
 		this.grassBackground = new RepeatingSpriteBackground(CAMERA_WIDTH, CAMERA_HEIGHT, this.getTextureManager(), AssetBitmapTextureAtlasSource.create(this.getAssets(), "gfx/" + COLOR_RANDOM_TABLE[posicao] + "table.png"), this.getVertexBufferObjectManager()); 
 		this.mainScene.setBackground(this.grassBackground);
@@ -424,8 +424,8 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 
 				final Body bodyFace;
 				final Body bodyPlace;
-				if(type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BALL)) {
-					place = new Place(x, y, width, height, SolitaireActivity.this.emptyPlaceTextureRegion, vertexBufferObjectManager) {
+				if(type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_FACE)) {
+					place = new Place(x, y, width, height, SolitaireActivity.this.placeTextureRegion, vertexBufferObjectManager) {
 						@Override
 						protected void onManagedUpdate(float pSecondsElapsed) {
 							//if (this.collidesWith());
@@ -436,8 +436,8 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 					place.setOcupado(true);
 					place.setInitEmpty(initEmpty);
 					bodyFace = PhysicsFactory.createCircleBody(SolitaireActivity.this.physicsWorld, place, BodyType.StaticBody, SolitaireActivity.PLACE_FIXTURE_DEF);
-					face = new Face(x, y, width, height, SolitaireActivity.this.ballTextureRegion, vertexBufferObjectManager);
-					bodyPlace = PhysicsFactory.createCircleBody(SolitaireActivity.this.physicsWorld, face, BodyType.DynamicBody, SolitaireActivity.BALL_FIXTURE_DEF);
+					face = new Face(x, y, width, height, SolitaireActivity.this.faceTextureRegion, vertexBufferObjectManager);
+					bodyPlace = PhysicsFactory.createCircleBody(SolitaireActivity.this.physicsWorld, face, BodyType.DynamicBody, SolitaireActivity.FACE_FIXTURE_DEF);
 					SolitaireActivity.remains++;
 				} else {
 					throw new IllegalArgumentException();
