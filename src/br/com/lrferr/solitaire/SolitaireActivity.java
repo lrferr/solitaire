@@ -88,7 +88,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 
 	private TextureRegion starTextureRegion;
 	
-	private RepeatingSpriteBackground grassBackground;
+	private RepeatingSpriteBackground tableBackground;
 
 	private static ArrayList<Face> faces = new ArrayList<Face>();
 	private ArrayList<Body> bodyFaceList = new ArrayList<Body>();
@@ -210,12 +210,12 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		this.faceTextureAtlas.load();
 
 		this.placeTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.placeTextureAtlas, this, "" +
-				"emptyplace.png", 0, 0);
+				"place.png", 0, 0);
 		this.starTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.starTextureAtlas, this, "star.png", 0, 0);
 		this.placeTextureAtlas.load();
 		this.intervalTextureAtlas.load();
 		this.starTextureAtlas.load();
-		this.grassBackground = new RepeatingSpriteBackground(CAMERA_WIDTH, CAMERA_HEIGHT, this.getTextureManager(), AssetBitmapTextureAtlasSource.create(this.getAssets(), "gfx/skytable.png"), this.getVertexBufferObjectManager()); 
+		this.tableBackground = new RepeatingSpriteBackground(CAMERA_WIDTH, CAMERA_HEIGHT, this.getTextureManager(), AssetBitmapTextureAtlasSource.create(this.getAssets(), "gfx/skytable.png"), this.getVertexBufferObjectManager()); 
 
 		/* Load the font we are going to use. */
 		FontFactory.setAssetBasePath("font/");
@@ -241,7 +241,7 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		for(int i = 0; i < LAYER_COUNT; i++) {
 			this.mainScene.attachChild(new Entity());
 		}
-		this.mainScene.setBackground(this.grassBackground);
+		this.mainScene.setBackground(this.tableBackground);
 		this.mainScene.setOnAreaTouchListener(this);
 		this.menuScene = this.createMenuScene();
 
@@ -351,11 +351,11 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 
 		this.faceTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.faceTextureAtlas, this, COLOR_RANDOM_PLACE[posicao] + "facetiled.png", 0, 0, 4, 1);
 		this.faceTextureAtlas.load();
-		this.placeTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.placeTextureAtlas, this, COLOR_RANDOM_PLACE[posicao] + "emptyplace.png", 0, 0);
+		this.placeTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.placeTextureAtlas, this, COLOR_RANDOM_PLACE[posicao] + "place.png", 0, 0);
 		this.placeTextureAtlas.load();
 		posicao = (int)(Math.random() * COLOR_RANDOM_TABLE.length);
-		this.grassBackground = new RepeatingSpriteBackground(CAMERA_WIDTH, CAMERA_HEIGHT, this.getTextureManager(), AssetBitmapTextureAtlasSource.create(this.getAssets(), "gfx/" + COLOR_RANDOM_TABLE[posicao] + "table.png"), this.getVertexBufferObjectManager()); 
-		this.mainScene.setBackground(this.grassBackground);
+		this.tableBackground = new RepeatingSpriteBackground(CAMERA_WIDTH, CAMERA_HEIGHT, this.getTextureManager(), AssetBitmapTextureAtlasSource.create(this.getAssets(), "gfx/" + COLOR_RANDOM_TABLE[posicao] + "table.png"), this.getVertexBufferObjectManager()); 
+		this.mainScene.setBackground(this.tableBackground);
 		
 		//this.mainScene.getChildByIndex(LAYER_SCORE).detachChild(remainsText);
 		//this.mainScene.getChildByIndex(LAYER_SCORE).detachChild(scoreText);
@@ -955,8 +955,8 @@ public class SolitaireActivity extends BasePuzzle implements IOnSceneTouchListen
 		for (int x = 0; x < CAMERA_WIDTH; x += 128) {
 			for (int y = 0; y < (totalRows*150); y += 128) {
 				//Sprite mBackground = new Sprite(x, y, 128, 128, this.);
-				//this.levelSelectScene.attachChild(this.grassBackground);
-				this.levelSelectScene.setBackground(this.grassBackground);
+				//this.levelSelectScene.attachChild(this.tableBackground);
+				this.levelSelectScene.setBackground(this.tableBackground);
 			}
 		}
 		
